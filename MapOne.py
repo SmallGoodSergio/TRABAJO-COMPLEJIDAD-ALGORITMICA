@@ -56,3 +56,15 @@ def draw_map():
                 # Dibujar los pellets
                 pygame.draw.circle(screen, PELLET_COLOR, (x + CELL_SIZE // 2, y + CELL_SIZE // 2), PELLET_SIZE)
 
+# Bucle principal del juego
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    draw_map()  # Dibujar el mapa
+    pygame.display.flip()  # Actualizar la pantalla
+
+pygame.quit()
+sys.exit()
