@@ -42,3 +42,17 @@ map_layout = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
+def draw_map():
+    screen.fill(BLACK)  # Fondo negro
+
+    for row in range(len(map_layout)):
+        for col in range(len(map_layout[row])):
+            x = col * CELL_SIZE
+            y = row * CELL_SIZE
+
+            if map_layout[row][col] == 1:
+                pygame.draw.rect(screen, WALL_COLOR, (x, y, CELL_SIZE, CELL_SIZE))  # Dibujar las paredes
+            elif map_layout[row][col] == 0:
+                # Dibujar los pellets
+                pygame.draw.circle(screen, PELLET_COLOR, (x + CELL_SIZE // 2, y + CELL_SIZE // 2), PELLET_SIZE)
+
