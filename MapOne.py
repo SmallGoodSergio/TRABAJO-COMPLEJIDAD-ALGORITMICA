@@ -67,7 +67,19 @@ def draw_map():
     pacman_y = pacman_position[0] * CELL_SIZE + CELL_SIZE // 2
     pygame.draw.circle(screen, PACMAN_COLOR, (pacman_x, pacman_y), PACMAN_SIZE)
 
+# Función para encontrar los vecinos válidos para el Pac-Man
+def get_neighbors(position):
+    row, col = position
+    neighbors = []
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Arriba, abajo, izquierda, derecha
 
+    for dr, dc in directions:
+        new_row, new_col = row + dr, col + dc
+        if 0 <= new_row < len(map_layout) and 0 <= new_col < len(map_layout[0]):
+            if map_layout[new_row][new_col] == 0:  # Solo caminos válidos
+                neighbors.append((new_row, new_col))
+
+    return neighbors
 
 # Movimiento autónomo basado en MST (Prim)
 def move_pacman():
@@ -89,6 +101,11 @@ def move_pacman():
             pacman_position = list(current)
             break
 
+        for neighbor in get_neighbors(current):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                # Prioridad: distancia manhattan al pellet más cercano
+                heapq.heappush(priority_queue, (abs(neighbor[0] - pacman_position[0]) + abs(neighbor[1] - pacman_position[1]), neighbor))
 
 # Bucle principal del juego
 running = True
