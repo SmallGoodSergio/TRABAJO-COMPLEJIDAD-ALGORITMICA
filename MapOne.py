@@ -69,17 +69,21 @@ def draw_map():
 
 # Función para encontrar los vecinos válidos para el Pac-Man
 def get_neighbors(position):
+    """Encuentra los vecinos válidos de una posición."""
     row, col = position
     neighbors = []
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Arriba, abajo, izquierda, derecha
 
     for dr, dc in directions:
         new_row, new_col = row + dr, col + dc
+        # Permitir movimiento en celdas vacías (2) y con pellets (0)
         if 0 <= new_row < len(map_layout) and 0 <= new_col < len(map_layout[0]):
-            if map_layout[new_row][new_col] == 0:  # Solo caminos válidos
+            if map_layout[new_row][new_col] in [0, 2]:
                 neighbors.append((new_row, new_col))
 
     return neighbors
+
+
 
 # Movimiento autónomo basado en MST (Prim)
 def move_pacman():
@@ -96,16 +100,20 @@ def move_pacman():
 
     while priority_queue:
         _, current = heapq.heappop(priority_queue)
-        if map_layout[current[0]][current[1]] == 0:  # Si hay pellet, consumirlo
-            map_layout[current[0]][current[1]] = 2  # Marca como vacío
-            pacman_position = list(current)
-            break
 
+        # Si encontramos un pellet, movernos a su dirección
+        if map_layout[current[0]][current[1]] == 0:
+            map_layout[current[0]][current[1]] = 2  # Marcar como vacío
+            pacman_position = list(current)  # Avanzar paso a paso
+            return  # Terminar el turno
+
+        # Añadir vecinos a la cola de prioridad
         for neighbor in get_neighbors(current):
             if neighbor not in visited:
                 visited.add(neighbor)
-                # Prioridad: distancia manhattan al pellet más cercano
-                heapq.heappush(priority_queue, (abs(neighbor[0] - pacman_position[0]) + abs(neighbor[1] - pacman_position[1]), neighbor))
+                heapq.heappush(priority_queue, (
+                abs(neighbor[0] - pacman_position[0]) + abs(neighbor[1] - pacman_position[1]), neighbor))
+
 
 # Bucle principal del juego
 running = True
