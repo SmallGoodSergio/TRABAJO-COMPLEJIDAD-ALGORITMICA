@@ -68,6 +68,28 @@ def draw_map():
     pygame.draw.circle(screen, PACMAN_COLOR, (pacman_x, pacman_y), PACMAN_SIZE)
 
 
+
+# Movimiento autónomo basado en MST (Prim)
+def move_pacman():
+    global pacman_position
+
+    # Usamos una prioridad basada en la distancia manhattan a los pellets
+    priority_queue = []
+    visited = set()
+    start = tuple(pacman_position)
+
+    # Añadimos la posición inicial
+    heapq.heappush(priority_queue, (0, start))
+    visited.add(start)
+
+    while priority_queue:
+        _, current = heapq.heappop(priority_queue)
+        if map_layout[current[0]][current[1]] == 0:  # Si hay pellet, consumirlo
+            map_layout[current[0]][current[1]] = 2  # Marca como vacío
+            pacman_position = list(current)
+            break
+
+
 # Bucle principal del juego
 running = True
 clock = pygame.time.Clock()
@@ -77,7 +99,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
+    move_pacman()  # Movimiento autónomo del Pac-Man
     draw_map()  # Dibujar el mapa
     pygame.display.flip()  # Actualizar la pantalla
     clock.tick(5)  # Limitar la velocidad del juego
