@@ -107,8 +107,7 @@ def draw_map():
 
 
 # Función para encontrar los vecinos válidos
-def get_neighbors(position):
-
+def get_neighbors_with_weights(position):
     row, col = position
     neighbors = []
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Arriba, abajo, izquierda, derecha
@@ -117,7 +116,9 @@ def get_neighbors(position):
         new_row, new_col = row + dr, col + dc
         if 0 <= new_row < len(levels[current_level]) and 0 <= new_col < len(levels[current_level][0]):
             if levels[current_level][new_row][new_col] in [0, 2]:
-                neighbors.append((new_row, new_col))
+                # El peso será 1 si hay un pellet, 2 si está vacío
+                weight = 1 if levels[current_level][new_row][new_col] == 0 else 2
+                neighbors.append((weight, (new_row, new_col)))
 
     return neighbors
 
@@ -135,31 +136,39 @@ def check_all_pellets_collected():
 def move_pacman():
     global pacman_position
 
-    # prioridad basada en la distancia manhattan a los pellets
-    priority_queue = []
+    # Inicialización para Prim
     visited = set()
+    priority_queue = []
     start = tuple(pacman_position)
 
-    # posición inicial
-    heapq.heappush(priority_queue, (0, start))
-    visited.add(start)
+    # Agregar posición inicial
+    heapq.heappush(priority_queue, (0, start, start))  # (peso, posición_actual, posición_anterior)
+    next_move = None
 
     while priority_queue:
-        _, current = heapq.heappop(priority_queue)
+        weight, current, previous = heapq.heappop(priority_queue)
 
-        # encontramos un pellet, movernos a su dirección
-        if levels[current_level][current[0]][current[1]] == 0:
-            levels[current_level][current[0]][current[1]] = 2  # Marcar como vacío
-            pacman_position = list(current)
-            return  # Terminar el turno
+        if current not in visited:
+            visited.add(current)
 
-        # Añadir vecinos a la cola de prioridad
-        for neighbor in get_neighbors(current):
-            if neighbor not in visited:
-                visited.add(neighbor)
-                heapq.heappush(priority_queue, (
-                    abs(neighbor[0] - pacman_position[0]) + abs(neighbor[1] - pacman_position[1]), neighbor))
+            # Si es el primer movimiento desde la posición inicial, guardarlo
+            if previous == start and next_move is None:
+                next_move = current
 
+            # Si encontramos un pellet, movernos hacia él
+            if levels[current_level][current[0]][current[1]] == 0:
+                levels[current_level][current[0]][current[1]] = 2  # Marcar como recogido
+                pacman_position = list(current)
+                return
+
+            # Agregar vecinos no visitados a la cola de prioridad
+            for weight, neighbor in get_neighbors_with_weights(current):
+                if neighbor not in visited:
+                    heapq.heappush(priority_queue, (weight, neighbor, current))
+
+    # Si no encontramos pellets pero tenemos un siguiente movimiento válido
+    if next_move:
+        pacman_position = list(next_move)
 
 # mostrar mensaje
 def draw_text(text, position, font_size=30):
