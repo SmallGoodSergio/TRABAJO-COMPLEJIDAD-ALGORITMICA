@@ -6,22 +6,20 @@ import graphlib
 import graphviz as gv
 import tkinter as tk
 
-
-
 # codigo principal(generar ventana)
-
 
     
 
 
 pygame.init()
 pygame.mixer.init()
+text = pygame.font.SysFont('Arial',15)
 pantalla = pygame.display.set_mode((700,500))
 ancho = pantalla.get_width()
 altura = pantalla.get_height()
 pygame.display.set_caption("MENU")
 pantalla.fill("BLACK")
-
+menu = 0 # para poder cambiar de ventana
 archivo_inicio = 'inicio-juego.mp3'
 pygame.mixer.music.load(archivo_inicio)
 pygame.mixer.music.play()
@@ -30,9 +28,81 @@ while pygame.mixer.music.get_busy():
 
 
 
+# botones#
+objetos = []
+class boton:
+
+    def __init__(self,x,y,ancho,altura,textoboton = "boton",clickfuncion = None, presionado = False):
+
+
+        self.x = x
+        self.y = y
+        self.ancho = ancho
+        self.altura = altura
+        self.clickfuncion = clickfuncion
+        self.presionado = presionado
+        self.yapresionado = False
+
+        self.superficie = pygame.Surface((self.ancho,self.altura)) #crea una superficie propia para el boton
+        self.rectangulo = pygame.Rect(self.x,self.y,self.ancho,self.altura) #crea el rectangulo
+
+        self.texto = text.render(textoboton,True,colores(1))
+
+
+        self.color = { #diccionario para acceder a los colores
+
+
+            'normal': '#000000',
+            'hover' : '#666666',
+            'presionado':'#333333',
+        }
+        objetos.append(self)
+
+
+    def procesar(self):
+
+        posicionmouse = pygame.mouse.get_pos()
+
+        self.superficie.fill(self.color['normal'])
+
+        if self.rectangulo.collidepoint(posicionmouse):
+
+            self.superficie.fill(self.color['hover'])
+            boton_efecto()
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.superficie.fill(self.color['presionado'])
+
+                if self.presionado:
+                    self.clickfuncion()
+                elif not self.yapresionado:
+
+                    self.clickfuncion()
+                    self.yapresionado = True
+                    
+                
+            
+            else:
+                self.yapresionado = False
+        
+
+        self.superficie.blit(self.texto,(10,0))
+
+        pantalla.blit(self.superficie,self.rectangulo)
+
+
+        
+       
+       
+
+
+
+
+#--------#
+
 
 
 # funciones antes del codigo principal #
+
 
 def texto():
 
@@ -60,6 +130,11 @@ def boton_efecto():
     pygame.mixer.music.play()
     pygame.event.wait()
 
+def sumar_menu():
+    global menu
+    menu +=1
+
+
 
 
 # -----------------------------------#
@@ -80,33 +155,59 @@ def colores(n):
 
 
 #-------#
+#objetos#
+
+
+
+boton(330,200,50,18,'Iniciar',sumar_menu,False)
+#-------#
+
 
 funcionando = True
 
 while funcionando == True:
 
-    texto()
+    pantalla.fill("BLACK")
+    
     for evento in pygame.event.get():
 
         if evento.type == pygame.QUIT:
             funcionando = False
+    if menu == 0:
+     texto()
+
+     for object in objetos:
+
+            object.procesar()
+
+
+    elif menu == 1:
+
+        pantalla.fill("BLACK")
+
+
+
     
 
-    # conseguir la posicion del mouse#
-    mouse = pygame.mouse.get_pos()
-    # -------------------------------#
 
-    if 300 <= mouse[0] <=360 and 190 <=mouse[1] <=210:
-       boton_efecto()
 
-       pygame.draw.rect(pantalla,colores(1),[300,190,100,40])
+        
+
+
     
-    else: 
+    
+                
 
-       pygame.draw.rect(pantalla,colores(2),[300,190,100,40])
+       
+
+           
+           
+    
 
 
-    opcion_iniciar()
+
+
+
     pygame.display.update()
 
 
