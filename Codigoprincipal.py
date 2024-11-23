@@ -2,14 +2,13 @@
 
 import numpy as np
 import pygame
-import graphlib 
-import graphviz as gv
 import tkinter as tk
 import sys
 import heapq
 # codigo principal(generar ventana)
 
     
+
 
 
 pygame.init()
@@ -22,6 +21,7 @@ ancho = pantalla.get_width()
 altura = pantalla.get_height()
 pygame.display.set_caption("MENU")
 pantalla.fill("BLACK")
+
 menu = 0 # para poder cambiar de ventana
 archivo_inicio = 'inicio-juego.mp3'
 pygame.mixer.music.load(archivo_inicio)
@@ -210,6 +210,11 @@ def boton_efecto():
     pygame.mixer.music.play()
     pygame.event.wait()
 
+def poner_imagenmenu():
+  imagen_fondo = pygame.image.load("pacman_2.png")
+
+  pantalla.blit(imagen_fondo,(240,250))
+
 def sumar_menu():
     global funcionando
     global running
@@ -337,13 +342,13 @@ running = False
 funcionando = True
 while funcionando == True:
 
-    pantalla.fill("BLACK")
+    pantalla.fill((0,128,0))
     
     for evento in pygame.event.get():
 
         if evento.type == pygame.QUIT:
             funcionando = False
-
+    poner_imagenmenu()
     texto()
 
     for object in objetos:
