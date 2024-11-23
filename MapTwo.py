@@ -14,7 +14,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pac-Man")
 text = pygame.font.SysFont('Arial',15)
 imagen = pygame.image.load("pacman_2.png")
-
+matriz = np.loadtxt("texto.txt",dtype=int)
+tamaño_celda = 20 # tamaño de cada pedazo de pared
 imagen = pygame.transform.scale(imagen,(15,15))
 # Colores del mapa
 BLACK = (0, 0, 0)  # Fondo del mapa
@@ -26,7 +27,6 @@ altura_pared = 4  # altura de la pared
 distancia = list() # listado para las distancias
 VERDE_OSCURO = (1,50,32) # color para espacio de botones
 bolas = list() #lista de bolas
-pared = list()
 
 #clases#
 
@@ -106,14 +106,7 @@ def colocar(colocador):
     print(f"posicion bolas = {bolas}")
     print(len(bolas))
 
-def colocar2(colocador2):   
 
-    x = colocador2[0]
-    y = colocador2[1]
-
-    pygame.draw.rect(screen,WALL_COLOR,(x,y,10,altura_pared))
-    pared.append((x,y))
-    print(pared)
 
 def dibujar(lista):
 
@@ -147,18 +140,43 @@ def espacioarbol():
 
     pygame.draw.rect(screen,GRIS,(800,0,1200,700))
 
-    
 
 
+
+def dibujar_matriz(arr):
+
+
+
+
+   a = arr.shape[1]
+   b = arr.shape[0]
+   pared = [0] * 1
+   n = 0
+   for filas in range(b):
+      
+      for columnas in range(a):
+            x = columnas * tamaño_celda
+            y = filas * tamaño_celda
+            
+            if matriz[filas][columnas] == 1:
+              pared[n] = pygame.draw.rect(screen, WALL_COLOR, (x, y, tamaño_celda, tamaño_celda))  # Dibujar las paredes
+            
+            pared.append(0)
+            n+=1
+            
+
+      
 
 
 
 def moverse(arr1,inicio,imag):
    bolas_restantes = arr1.copy()
    seguido = list()
-
+   n = 0
+   distancia = [0]*1
+   
    while bolas_restantes:
-
+      distancia[n] = 0
       seguir = random.choice(bolas_restantes)
       while inicio[0] != seguir[0] or inicio[1] != seguir[1]:
         for event in pygame.event.get():
@@ -172,7 +190,7 @@ def moverse(arr1,inicio,imag):
 
          inicio[0] -=1
          print(inicio)
-        
+         distancia[n] +=1
         
     
         elif inicio[0] < seguir[0]:
@@ -180,24 +198,33 @@ def moverse(arr1,inicio,imag):
          inicio[0] +=1
          print(bolas_restantes)
         
+         distancia[n] +=1
 
 
         if inicio[1] > seguir[1]:
        
          inicio[1] -=1
-        
+         distancia[n] +=1
+
 
         elif inicio[1] < seguir[1]:
         
          inicio[1]+=1
+         distancia[n] +=1
+
         
         screen.fill("BLACK")  # Limpiar pantalla
         dibujar(bolas)  # Redibujar los puntos
-        dibujar2(pared)  # Redibujar las paredes
         dibujar3_in(imag, inicio)  # Dibujar la imagen en movimiento
         espacioarbol()  # Redibujar el espacio del árbol
         espacio_botones()  # Redibujar el espacio de botones
         pygame.display.flip()  # Actualizar la pantalla
+
+
+
+        print(f"distancia {n + 1} = {distancia[n]}")
+      distancia.append(0)
+      n+=1
 
 
 
@@ -265,8 +292,8 @@ while running:
     espacioarbol()
     espacio_botones()
     dibujar(bolas)
-    dibujar2(pared)
     dibujar3_in(imagen,pos_per)
+    dibujar_matriz(matriz)
     boton_crecer.procesar()
     boton_empezar.procesar()
 
@@ -281,7 +308,6 @@ while running:
     
     if pygame.mouse.get_pressed(num_buttons=3)[1]:
 
-        colocar2(mouse)
         time.sleep(0.5)
     
     for event in pygame.event.get():

@@ -16,7 +16,7 @@ WALL_COLOR = (0, 0, 139)  # Color de las paredes
 PELLET_COLOR = (255, 182, 193)  # Color para los pellets
 
 # Configuración de dimensiones del laberinto
-CELL_SIZE = 20
+CELL_SIZE = 22
 PELLET_SIZE = 4
 
 # Mapa del laberinto (1 = pared, 0 = camino con pellet)
